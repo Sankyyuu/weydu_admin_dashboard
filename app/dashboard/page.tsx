@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getAllEvents, getTickets, getStatistics } from '@/lib/api'
+import { formatDateInParis } from '@/lib/date-utils'
 
 interface Ticket {
   ticket_id: string
@@ -78,7 +79,7 @@ export default async function DashboardPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+    return formatDateInParis(dateString, 'fr-FR', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',

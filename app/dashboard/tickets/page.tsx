@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getTickets, validateTicket, getAllEvents } from '@/lib/api'
+import { formatDateInParis, formatDateTimeInParis } from '@/lib/date-utils'
 
 interface Ticket {
   ticket_id: string
@@ -106,7 +107,7 @@ export default function TicketsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString()
+    return formatDateTimeInParis(dateString, 'fr-FR')
   }
 
   const formatCurrency = (amount: number) => {
@@ -163,7 +164,7 @@ export default function TicketsPage() {
                   <option value="">Tous les événements</option>
                   {events.map((event) => (
                     <option key={event.id} value={event.id}>
-                      {new Date(event.date).toLocaleDateString()} - {getEventTitle(event)}
+                      {formatDateInParis(event.date, 'fr-FR')} - {getEventTitle(event)}
                     </option>
                   ))}
                 </select>
@@ -417,7 +418,7 @@ export default function TicketsPage() {
                       </div>
                     </td>
                     <td className="px-3 py-3">
-                      <div className="text-xs text-gray-600 dark:text-gray-300">{new Date(ticket.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })}</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-300">{formatDateInParis(ticket.created_at, 'fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })}</div>
                     </td>
                     <td className="px-3 py-3">
                       {ticket.validated_at ? (
@@ -434,7 +435,7 @@ export default function TicketsPage() {
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {ticket.validated_at ? (
                           <div>
-                            <div>{new Date(ticket.validated_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</div>
+                            <div>{formatDateInParis(ticket.validated_at, 'fr-FR', { day: '2-digit', month: '2-digit' })}</div>
                             {ticket.validated_by && (
                               <div className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[100px]" title={ticket.validated_by}>
                                 par {ticket.validated_by}

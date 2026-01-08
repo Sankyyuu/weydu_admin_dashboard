@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getAllEvents, createEvent, updateEvent, deleteEvent } from '@/lib/api'
+import { formatDateInParis, formatTimeInParis } from '@/lib/date-utils'
 
 interface EventTranslation {
   locale: string
@@ -32,7 +33,18 @@ interface Event {
   capacity?: number
   women_only: boolean
   display_places: boolean
+  sold_out?: boolean
   image_url?: string
+  pricing?: {
+    normal: {
+      price: number
+      label?: string
+    }
+    student?: {
+      price: number
+      label?: string
+    }
+  } | null
   contact_info?: {
     instagram?: string
     email?: string
@@ -98,6 +110,7 @@ export default function EventsPage() {
     capacity: '',
     womenOnly: false,
     displayPlaces: true,
+    soldOut: false,
     imageUrl: '',
     contactInfoInstagram: '',
     contactInfoEmail: '',
@@ -128,6 +141,7 @@ export default function EventsPage() {
       capacity: '',
       womenOnly: false,
       displayPlaces: true,
+      soldOut: false,
       imageUrl: '',
       contactInfoInstagram: '',
       contactInfoEmail: '',
@@ -149,6 +163,7 @@ export default function EventsPage() {
       capacity: event.capacity?.toString() || '',
       womenOnly: event.women_only,
       displayPlaces: event.display_places,
+      soldOut: event.sold_out || false,
       imageUrl: event.image_url || '',
       contactInfoInstagram: event.contact_info?.instagram || '',
       contactInfoEmail: event.contact_info?.email || '',
@@ -248,6 +263,7 @@ export default function EventsPage() {
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
         womenOnly: formData.womenOnly,
         displayPlaces: formData.displayPlaces,
+        soldOut: formData.soldOut,
         imageUrl: formData.imageUrl || null,
         contactInfo: (formData.contactInfoInstagram || formData.contactInfoEmail) ? {
           instagram: formData.contactInfoInstagram || undefined,
@@ -512,6 +528,24 @@ export default function EventsPage() {
                       <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Afficher les places disponibles</span>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Affiche le nombre de places restantes sur la page publique</p>
+                  </div>
+                </label>
+                <label className="flex items-start p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700/50 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    id="soldOut"
+                    checked={formData.soldOut}
+                    onChange={(e) => setFormData({ ...formData, soldOut: e.target.checked })}
+                    className="mt-0.5 h-4 w-4 text-red-500 dark:text-red-400 focus:ring-red-500 dark:focus:ring-red-400 border-gray-300 dark:border-gray-600 rounded"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Événement complet (Sold Out)</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Désactive les réservations et affiche un message "Complet" sur la page publique</p>
                   </div>
                 </label>
               </div>
@@ -785,6 +819,9 @@ export default function EventsPage() {
                   <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-28">
                     Afficher places
                   </th>
+                  <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-28">
+                    Sold Out
+                  </th>
                   <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-24">
                     Langues
                   </th>
@@ -803,9 +840,9 @@ export default function EventsPage() {
                     </td>
                     <td className="px-3 py-3">
                       <div className="text-xs text-gray-600 dark:text-gray-300">
-                        {new Date(event.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                        {formatDateInParis(event.date, 'fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                         <div className="text-xs text-gray-400 dark:text-gray-500">
-                          {new Date(event.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                          {formatTimeInParis(event.date, 'fr-FR')}
                         </div>
                       </div>
                     </td>
@@ -829,6 +866,17 @@ export default function EventsPage() {
                     <td className="px-3 py-3">
                       {event.display_places ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                          Oui
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                          Non
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      {event.sold_out ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
                           Oui
                         </span>
                       ) : (
